@@ -6,7 +6,7 @@ const {
   addTodo,
   deleteTodo,
   editTodo,
-} = require("../config/connection");
+} = require("../config/orm.js");
 
 // route to see all todos
 router.get("/api", (req, res) => {
