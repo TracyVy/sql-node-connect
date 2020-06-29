@@ -1,16 +1,42 @@
 $(document).ready(function () {
-  $.ajax({
-    type: "GET",
-    url: "/api",
-  }).then((allTodos) => {
-    console.log(allTodos);
+  getTodos().then((allTodos) => {
     renderTodos(allTodos);
   });
+
+  $("#submitBtn").on("click", () => {
+    const todoText = $("#todoText").val();
+    $("#todoText").val("");
+
+    $.ajax({
+      type: "POST",
+      url: "/api",
+      data: { text: todoText },
+    }).then(() => {
+      getTodos()
+        .then((allTodos) => renderTodos(allTodos))
+        .catch((err) => console.log(err));
+    });
+  });
 });
+
+const getTodos = () => {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "GET",
+      url: "/api",
+    })
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((err) => reject(err));
+  });
+};
+
 const renderTodos = (arr) => {
   $("#card-container").html("");
   arr.forEach((todo) => {
     let msg = todo.completed ? "✔ Finished todo" : "❌ Need to do!";
+
     $("#card-container").prepend(
       `
       <div class="card mb-2">
@@ -35,10 +61,12 @@ const renderTodos = (arr) => {
     );
   });
 };
+
 $(document).on("click", ".btnUpdate", function () {
   const todoId = $(this).attr("data-id");
   window.location.href = `/edit?id=${todoId}`;
 });
+
 $(document).on("click", ".btnDelete", function () {
   const todoId = $(this).attr("data-id");
   window.location.href = `/delete?id=${todoId}`;
